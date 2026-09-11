@@ -1,3 +1,5 @@
-# Faith Walker — static build
+# Faith Walker (static)
 
-Compiled assets for the public Vercel app. **Source stays private** in `looksniceproject-prog/lumen-foi`.
+Public static build of Faith Walker. Source remains in the private `lumen-foi` repo.
+
+Pages: https://looksniceproject-prog.github.io/faith-walker-static/
