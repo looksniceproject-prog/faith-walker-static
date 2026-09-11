@@ -1,5 +1,5 @@
 # Faith Walker (static)
 
-Public static build of Faith Walker. Source remains in the private `lumen-foi` repo.
+Public static build. Source stays private in `lumen-foi`.
 
-Pages: https://looksniceproject-prog.github.io/faith-walker-static/
+https://looksniceproject-prog.github.io/faith-walker-static/
