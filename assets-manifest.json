@@ -1,0 +1,103 @@
+{
+  "keepBuilds": 5,
+  "legacy": [
+    {
+      "bundle": "index-ndGcICib.js",
+      "build": null,
+      "appCommit": "d04031d",
+      "pagesCommit": "4ea33873ab085188ead640c4f7acaed32538cb3d",
+      "files": [
+        "index-BYMDnhCH.css",
+        "index-ndGcICib.js",
+        "web-BX6EDLcF.js",
+        "workbox-window.prod.es5-Bd17z0YL.js"
+      ]
+    },
+    {
+      "bundle": "index-BmGhaHTN.js",
+      "build": 1,
+      "appCommit": "9412ce7",
+      "pagesCommit": "cf4e8af6c9194e20814286394d6b0638c2dec812",
+      "files": [
+        "index-BmGhaHTN.js",
+        "index-CS9OWnJF.css",
+        "web-3ZYplC9O.js"
+      ]
+    },
+    {
+      "bundle": "index-C7DgTpwp.js",
+      "build": 2,
+      "appCommit": "387b579",
+      "pagesCommit": "e04291eee57fe9289506edde56e4e47d93c1198c",
+      "files": [
+        "index-C7DgTpwp.js",
+        "index-CCKO9aJb.css",
+        "web-CowwtO-A.js"
+      ]
+    },
+    {
+      "bundle": "index-C1kPZcBm.js",
+      "build": 3,
+      "appCommit": "9c91a8b",
+      "pagesCommit": "c949a2260846d7512af00b1571437a192de2c642",
+      "files": [
+        "index-C1kPZcBm.js",
+        "index-NnvynOCt.css",
+        "web-D1uIOnc8.js"
+      ]
+    },
+    {
+      "bundle": "index-DgkuH5zr.js",
+      "build": 4,
+      "appCommit": "aded32e",
+      "pagesCommit": "a0fe1751cb6f4b2b45b4b6c221837ee455dc79e9",
+      "files": [
+        "index-DgkuH5zr.js",
+        "index-NnvynOCt.css",
+        "web-CBJ2gy1F.js"
+      ]
+    }
+  ],
+  "builds": [
+    {
+      "build": 5,
+      "appCommit": "4a0cf24",
+      "pagesCommit": "43269e55dbdcce41a9bb24b2796b7068d719abaf",
+      "files": [
+        "index-DH69hMSe.css",
+        "index-kZOT1nFv.js",
+        "web-Bm3MrGks.js"
+      ]
+    },
+    {
+      "build": 6,
+      "appCommit": "b922b38",
+      "pagesCommit": "78384a00156fdc5817d2d715a5fba6f506a3c055",
+      "files": [
+        "index-DH69hMSe.css",
+        "index-DMWSmZfd.js",
+        "web-D8Grmt8d.js"
+      ]
+    },
+    {
+      "build": 7,
+      "appCommit": "6613ffd",
+      "pagesCommit": "2bfabbe47bc7dec12e74168fde1ade3e20fa6fa8",
+      "files": [
+        "index-C38HVNFG.js",
+        "index-CNW4llmj.css",
+        "web-BrpZ_BwJ.js"
+      ]
+    },
+    {
+      "build": 8,
+      "appCommit": "5e266bc",
+      "date": "2026-10-20T17:13:44.356Z",
+      "files": [
+        "index-B_c9JFZo.js",
+        "index-J3JsYrWe.css",
+        "web-CNMGZAfS.js"
+      ]
+    }
+  ]
+}

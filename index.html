@@ -1,6 +1,125 @@
 <!doctype html>
 <html lang="fr">
   <head>
+    <script>/*
+ * Boot guard — inlined into <head> by vite.config.ts (bootGuardInline), BEFORE the app bundle.
+ * Plain ES5, no imports, no i18n bundle: it must work when the bundle itself failed to load.
+ *
+ * Failure = a same-origin /assets/ script or stylesheet fails to load (e.g. an old cached
+ * index.html points to a deleted hashed bundle), or the window 'load' event fires and the app
+ * module never started (window.__fwBooted not set, e.g. a chunk import 404).
+ * Recovery, at most ONCE per tab session (sessionStorage key below = our only storage write):
+ *   1. delete every Cache Storage entry (service-worker caches) and unregister the service worker;
+ *   2. location.replace(url + ?_r=<timestamp>) to bypass the HTTP cache.
+ * If it fails again: static FR/EN message + "Try again" button (user-driven, never a loop).
+ * localStorage / IndexedDB are NEVER touched (guest progress, pending sync queue stay intact).
+ */
+function fwBootGuard(win, opts) {
+  'use strict'
+  opts = opts || {}
+  var KEY = 'fw-boot-retry'
+  var doc = win.document
+  var failed = false
+  var texts = {
+    fr: { msg: 'Faith Walker n\u2019a pas pu se charger. V\u00e9rifie ta connexion, puis r\u00e9essaie. Ta progression est gard\u00e9e.', btn: 'R\u00e9essayer' },
+    en: { msg: 'Faith Walker couldn\u2019t load. Check your connection, then try again. Your progress is safe.', btn: 'Try again' },
+  }
+  function lang() {
+    var l = String((win.navigator && win.navigator.language) || 'fr').toLowerCase()
+    return l.indexOf('en') === 0 ? 'en' : 'fr'
+  }
+  function session(op, v) {
+    try {
+      var s = win.sessionStorage
+      if (op === 'get') return s.getItem(KEY)
+      if (op === 'set') s.setItem(KEY, v)
+      if (op === 'del') s.removeItem(KEY)
+    } catch (e) { /* storage blocked: behave as "already retried" to never loop */ return op === 'get' ? '1' : null }
+    return null
+  }
+  function isAppAsset(el) {
+    if (!el || !el.tagName) return false
+    var tag = el.tagName.toUpperCase()
+    var url = tag === 'SCRIPT' ? el.src : tag === 'LINK' && /stylesheet|modulepreload/.test(el.rel || '') ? el.href : ''
+    if (!url) return false
+    try {
+      var u = new win.URL(url, win.location.href)
+      return u.origin === win.location.origin && u.pathname.indexOf('/assets/') !== -1
+    } catch (e) { return false }
+  }
+  function clearSwCaches() {
+    var jobs = []
+    try {
+      if (win.caches && win.caches.keys) {
+        jobs.push(win.caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return win.caches.delete(k) })) }))
+      }
+      var sw = win.navigator && win.navigator.serviceWorker
+      if (sw && sw.getRegistrations) {
+        jobs.push(sw.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister() })) }))
+      }
+    } catch (e) { /* ignore */ }
+    var timeout = new Promise(function (res) { win.setTimeout(res, 3000) })
+    return Promise.race([Promise.all(jobs).catch(function () {}), timeout])
+  }
+  function freshUrl() {
+    var u = new win.URL(win.location.href)
+    u.searchParams.set('_r', String(Date.now()))
+    return u.toString()
+  }
+  function recover() {
+    return clearSwCaches().then(function () { win.location.replace(freshUrl()) })
+  }
+  function showMessage() {
+    var t = texts[lang()]
+    var box = doc.createElement('div')
+    box.id = 'fw-boot-fallback'
+    box.setAttribute('role', 'alert')
+    box.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;background:#f5f9ff;color:#1b2a4a;font:17px/1.5 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif;text-align:center'
+    var p = doc.createElement('p')
+    p.style.cssText = 'margin:0;max-width:320px'
+    p.textContent = t.msg
+    var b = doc.createElement('button')
+    b.type = 'button'
+    b.textContent = t.btn
+    b.style.cssText = 'border:0;border-radius:999px;padding:12px 28px;background:#2f5fd0;color:#fff;font:700 16px system-ui,sans-serif;cursor:pointer'
+    b.onclick = function () { b.disabled = true; recover() }
+    box.appendChild(p)
+    box.appendChild(b)
+    ;(doc.body || doc.documentElement).appendChild(box)
+  }
+  function fail() {
+    if (failed || win.__fwBooted) return
+    failed = true
+    if (!session('get')) {
+      session('set', String(Date.now()))
+      recover()
+      return
+    }
+    if (doc.body) showMessage()
+    else doc.addEventListener('DOMContentLoaded', showMessage)
+  }
+  win.addEventListener('error', function (e) { if (isAppAsset(e.target)) fail() }, true)
+  win.addEventListener('load', function () {
+    // module scripts run before 'load'; give a late module a short grace period
+    win.setTimeout(function () { if (!win.__fwBooted) fail() }, opts.graceMs == null ? 1500 : opts.graceMs)
+  })
+  /** Called by main.tsx once the app module runs: clears our guard key and the ?_r= marker. */
+  win.__fwBootOk = function () {
+    win.__fwBooted = true
+    session('del')
+    try {
+      var u = new win.URL(win.location.href)
+      if (u.searchParams.has('_r')) {
+        u.searchParams.delete('_r')
+        win.history.replaceState(win.history.state, '', u.pathname + (u.search || '') + u.hash)
+      }
+    } catch (e) { /* ignore */ }
+  }
+  return { fail: fail, isAppAsset: isAppAsset, lang: lang, texts: texts }
+}
+
+fwBootGuard(window);</script>
+
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/faith-walker-static/favicon.svg" />
     <link rel="apple-touch-icon" href="/faith-walker-static/icons/apple-touch-icon.png" />
@@ -15,8 +134,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <title>Faith Walker — Marche dans la foi</title>
-    <script type="module" crossorigin src="/faith-walker-static/assets/index-C38HVNFG.js"></script>
-    <link rel="stylesheet" crossorigin href="/faith-walker-static/assets/index-CNW4llmj.css">
+    <script type="module" crossorigin src="/faith-walker-static/assets/index-B_c9JFZo.js"></script>
+    <link rel="stylesheet" crossorigin href="/faith-walker-static/assets/index-J3JsYrWe.css">
   <link rel="manifest" href="/faith-walker-static/manifest.webmanifest"></head>
   <body>
     <div id="root"></div>
